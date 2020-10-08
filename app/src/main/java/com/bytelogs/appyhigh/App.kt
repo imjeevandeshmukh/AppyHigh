@@ -11,8 +11,6 @@ class App : Application() {
 
     lateinit var injector: AppComponent
 
-    @Inject
-    lateinit var repository: RemoteConfigRepository
     override fun onCreate() {
         super.onCreate()
         injector = DaggerAppComponent
