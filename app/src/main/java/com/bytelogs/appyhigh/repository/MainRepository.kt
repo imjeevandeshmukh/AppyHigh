@@ -8,7 +8,7 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(var  apiInterface: ApiInterface) {
 
 
-    suspend fun getNews(locale: String) = apiInterface.getTopNews(locale,BuildConfig.API_KEY)
+     suspend fun getNews(locale: String) = apiInterface.getTopNews(locale,BuildConfig.API_KEY)
 
 
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import com.bytelogs.appyhigh.data.ApiInterface
 import com.bytelogs.appyhigh.repository.MainRepository
+import com.bytelogs.appyhigh.repository.RemoteConfigRepository
 import com.bytelogs.appyhigh.viewmodel.ViewModelFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -17,7 +18,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 @Suppress("unused")
-@Module
+@Module(includes = [
+    ConfigModule::class
+])
 class NetworkModule{
 
 
@@ -81,8 +84,8 @@ class NetworkModule{
 
     @Provides
     @Reusable
-    internal fun provideViewModelFactory(mainRepository: MainRepository): ViewModelFactory {
-        return ViewModelFactory(mainRepository)
+    internal fun provideViewModelFactory(mainRepository: MainRepository,remoteConfigRepository: RemoteConfigRepository): ViewModelFactory {
+        return ViewModelFactory(mainRepository,remoteConfigRepository)
     }
 
     @Suppress("DEPRECATION")

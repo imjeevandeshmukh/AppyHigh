@@ -20,14 +20,14 @@ class RemoteConfigRepository {
         )
 
     private lateinit var remoteConfig: FirebaseRemoteConfig
-    private lateinit var doLoadLiveData: MutableLiveData<Boolean>
+    private lateinit var completeFetchLiveData: MutableLiveData<Boolean>
 
     fun init() {
         remoteConfig = getFirebaseRemoteConfig()
     }
 
     private fun getFirebaseRemoteConfig(): FirebaseRemoteConfig {
-        doLoadLiveData = MutableLiveData();
+        completeFetchLiveData = MutableLiveData();
 
         val remoteConfig = Firebase.remoteConfig
 
@@ -43,13 +43,14 @@ class RemoteConfigRepository {
         remoteConfig.setDefaultsAsync(DEFAULTS)
 
         remoteConfig.fetchAndActivate().addOnCompleteListener {
-            doLoadLiveData.postValue(it.result)
+            completeFetchLiveData.postValue(it.isSuccessful)
         }
 
         return remoteConfig
     }
 
-    fun getDoLoadAds(): MutableLiveData<Boolean> = doLoadLiveData
+    fun getOnCompleteSyncLiveData(): MutableLiveData<Boolean> = completeFetchLiveData
+    fun getDoLoadAds(): Boolean = remoteConfig.getBoolean(DO_LOAD_ADS)
 
     companion object {
         private const val TAG = "RemoteConfigUtils"

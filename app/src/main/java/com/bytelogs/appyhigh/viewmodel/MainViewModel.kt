@@ -1,15 +1,17 @@
 package com.bytelogs.appyhigh.viewmodel
 
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.bytelogs.appyhigh.data.Resource
 import com.bytelogs.appyhigh.repository.MainRepository
+import com.bytelogs.appyhigh.repository.RemoteConfigRepository
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 
-class MainViewModel @Inject constructor(val mainRepository: MainRepository): ViewModel() {
+class MainViewModel  constructor(val mainRepository: MainRepository,val remoteConfigRepository: RemoteConfigRepository): ViewModel() {
 
 
     fun onFetchNews(locale: String) = liveData(Dispatchers.IO) {
@@ -21,4 +23,16 @@ class MainViewModel @Inject constructor(val mainRepository: MainRepository): Vie
         }
     }
 
- }
+    fun  getOnCompleteSyncLiveData(): MutableLiveData<Boolean> {
+        return  remoteConfigRepository.getOnCompleteSyncLiveData()
+    }
+    fun  onRemoteInit(){
+        remoteConfigRepository.init()
+    }
+
+    fun getDoLoadAds():Boolean{
+        return  remoteConfigRepository.getDoLoadAds()
+    }
+
+
+}

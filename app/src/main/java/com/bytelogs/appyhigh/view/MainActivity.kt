@@ -37,12 +37,10 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
     private val NUMBER_OF_ADS = 5
     private var adLoader: AdLoader? = null
     private lateinit var  mNativeAds: MutableList<UnifiedNativeAd>
-    private var doLaodAds:Boolean = true
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    @Inject
-    lateinit var repository: RemoteConfigRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this, getString(R.string.admob_app_id));
@@ -53,34 +51,36 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
 
     }
     private fun init(){
-        repository.init()
         mNativeAds = mutableListOf();
         apodList = mutableListOf()
         mainViewModel = ViewModelProviders.of(this,viewModelFactory).get(MainViewModel::class.java)
         binding.mainViewModel = mainViewModel
         binding.mainRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         apodAdapter = NewsAdapter(apodList)
+        mainViewModel.onRemoteInit()
         binding.mainRecyclerView.adapter = apodAdapter
         binding.tryAgain.setOnClickListener(this)
         listenRemoteConfig()
 
     }
     private fun listenRemoteConfig(){
-        repository.getDoLoadAds().observe(this, Observer {
-            setupObservers(it)
+        mainViewModel.getOnCompleteSyncLiveData().observe(this, Observer {
+            if(it){
+                setupObservers()
+            }
+
         })
     }
 
 
 
-    private fun setupObservers(doLoad:Boolean) {
-        doLaodAds = doLoad
+    private fun setupObservers() {
         mainViewModel.onFetchNews(getLocaleCountry()).observe(this, Observer {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
                         resource.data?.let { news ->  
-                           onSuccessNewsFetch(news,doLoad)
+                           onSuccessNewsFetch(news)
                         }
                         binding.tryAgain.visibility = View.GONE
                     }
@@ -100,9 +100,9 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
             }
         })
     }
-    private fun  onSuccessNewsFetch(newsResponse: NewsResponse,doLoadAds: Boolean){
+    private fun  onSuccessNewsFetch(newsResponse: NewsResponse){
         apodList.addAll(newsResponse.articles)
-        if(doLoadAds){
+        if(mainViewModel.getDoLoadAds()){
             loadNativeAds()
         }else{
             apodAdapter.notifyDataSetChanged()
@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity(),View.OnClickListener {
 
     override fun onClick(p0: View?) {
         if(p0?.id == R.id.try_again){
-            setupObservers(doLaodAds)
+            setupObservers()
         }
     }
 
